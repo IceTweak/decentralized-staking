@@ -4,7 +4,7 @@ pragma solidity 0.8.4;  //Do not change the solidity version as it negativly imp
 import "hardhat/console.sol";
 import "./ExampleExternalContract.sol";
 
-error StakingComplete;
+error StakingComplete();
 error InvalidStakeAmount(string message);
 error DeadlineNotMet();
 error NotOpenToWithdraw();
