@@ -26,7 +26,7 @@ contract Staker {
   }
 
   modifier isCompleted {
-    if (exampleExternalContract.completed) {
+    if (exampleExternalContract.completed() == true) {
       revert StakingComplete();
     }
     _;
