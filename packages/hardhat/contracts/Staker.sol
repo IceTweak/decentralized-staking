@@ -4,6 +4,7 @@ pragma solidity 0.8.4;  //Do not change the solidity version as it negativly imp
 import "hardhat/console.sol";
 import "./ExampleExternalContract.sol";
 
+error StakingComplete;
 error InvalidStakeAmount(string message);
 error DeadlineNotMet();
 error NotOpenToWithdraw();
@@ -24,9 +25,16 @@ contract Staker {
       exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
   }
 
+  modifier isCompleted {
+    if (exampleExternalContract.completed) {
+      revert StakingComplete();
+    }
+    _;
+  }
+
   // Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
   // ( Make sure to add a `Stake(address,uint256)` event and emit it for the frontend <List/> display )
-  function stake() payable public {
+  function stake() payable public isCompleted {
     if (msg.value == 0) {
       revert InvalidStakeAmount({ message: "More than 0 wei needed!" });
     }
@@ -42,7 +50,7 @@ contract Staker {
 
   // After some `deadline` allow anyone to call an `execute()` function
   // If the deadline has passed and the threshold is met, it should call `exampleExternalContract.complete{value: address(this).balance}()`
-  function execute() public {
+  function execute() public isCompleted {
     if (block.timestamp < deadline) {
       revert DeadlineNotMet();
     }
@@ -56,7 +64,7 @@ contract Staker {
   }
 
   // If the `threshold` was not met, allow everyone to call a `withdraw()` function to withdraw their balance
-  function withdraw() public {
+  function withdraw() public isCompleted {
     if (!openToWithdraw) {
       revert NotOpenToWithdraw();
     }
